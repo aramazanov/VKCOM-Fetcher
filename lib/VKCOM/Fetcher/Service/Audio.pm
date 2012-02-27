@@ -5,36 +5,47 @@ use VKCOM::Fetcher::Utils;
 
 use Carp;
 
-sub http_method    { 'audio.get' }
-sub file_extension { 'mp3' }
+sub http_method_name { 'audio.get' }
+sub file_extension   { 'mp3' }
 
 sub audio {
     my $self = shift;
-    my ($storage, %opts) = @_;
+    my (%opts) = @_;
+    my $storage = $opts{'storage'} or
+        croak('storage not specified');
 
-    my $method = http_method();
-    my $ext = file_extension();
+    my $method_name = $self->http_method_name();
+    my $ext    = $self->file_extension();
     
-    defined $storage or croak 'dir not specified';
-    my ($dh, $local_songs) = read_dir($storage, $ext);
+    my ( $dh, $storage_songs ) = read_dir( $storage, $ext );
 
-    my $struct = decode_json( $self->fetch(1, "method/$method") );
+    my $struct = json_decode( 
+        $self->fetch( 1, "method/$method_name" ) 
+    );
 
-    my @vk_songs = {}; 
-    for my $song ( @{$struct->{response}} )
-    {
-        my $artist = decode_entities($song->{artist});
-        my $title = decode_entities($song->{title});
-
-        my $song_name = sprintf('%s - %s.%s', $artist, $title, $ext);
+    my $vk_songs = {}; 
+    for my $song ( @{$struct->{response}} ) {
+        my $song_name = sprintf(
+                '%s - %s.%s', 
+                html_decode( $song->{artist} ), 
+                html_decode( $song->{title}  ), 
+                $ext 
+        );
         $vk_songs->{$song_name} = $song->{url};
     }
 
-    my @new_songs = compare_list('symdiff', [ keys %$vk_songs ], $local_songs);
-   
-    for my $song_name ( @new_songs )
-    {
-        save_file($storage, $song_name, $self->fetch(0, $vk->{$song_name}));
+    if ( keys( %$vk_songs ) ) {
+        my @new_songs = $opts{'rewrite'} ? ( keys( %$vk_songs ) ) : 
+            compare_list( 'symdiff', [ keys %$vk_songs ], $storage_songs );
+           
+        for my $song_name ( @new_songs ) {
+            my $url = $vk_songs->{$song_name};
+            write_file(
+                "$storage/$song_name", 
+                $self->fetch( 0, $url )
+            )
+            or carp("can't write file: $storage/$song_name");
+        }
     }
 }
 

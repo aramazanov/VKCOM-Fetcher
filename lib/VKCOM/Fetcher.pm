@@ -7,7 +7,7 @@ our $VERSION = '0.01';
 use Any::Moose;
 
 with 'VKCOM::Fetcher::Service::Audio' => {
-    -excludes => ['http_method', 'file_extension'] 
+    -excludes => ['http_method_name', 'file_extension'] 
     };
 
 has 'access_token' => ( 
@@ -26,7 +26,7 @@ has 'uid' => (
 has 'gid' => ( 
     is        => 'rw', 
     isa       => 'Int',
-    predicate => 'has_gid'
+    predicate => 'has_gid',
     required  => 0
 );
 
@@ -55,8 +55,8 @@ sub BUILD
 { 
     my $self = shift;
 
-    croak 'uid or gid must be specified' 
-        unless ($self->has_uid or $self->has_gid);
+    croak('uid or gid must be specified')
+        unless ($self->has_uid or $self->has_gid);        
 }
  
 sub _build_ua {
@@ -70,29 +70,26 @@ sub fetch {
     my $auth = shift;
     my $url = shift;
 
-    (defined $auth and (1 == $auth or 0 == $auth)) 
-        or croak 'first argument auth must be 1 or 0';
+    ( defined $auth and ( 1 == $auth or 0 == $auth ) ) 
+        or croak('first argument auth must be 1 or 0');
     
     defined $url 
-        or croak 'url not specified';
+        or croak('url not specified');
 
     my $req_url = $auth ? 
         sprintf( "%s%s?%s", $self->base_url, $url, $self->get_auth_params() ) :
             $url;
 
-    return $self->ua->get($req_url);
+    return $self->ua->get( $req_url );
 }
 
 sub get_auth_params {
     my $self = shift;
 
-    my @attrs = ( 'access_token', ( $self->gid || $self->uid ) );
-    my @params = map { sprintf('%s=%s', $_, $self->$_) } @attrs;
+    my @attrs = ( 'access_token', ( $self->gid ? 'gid' : 'uid' ) );
+    my @params = map { sprintf( '%s=%s', $_, $self->$_ ) } @attrs;
     return join('&', @params);
 }
-
-# Preloaded methods go here.
-__PACKAGE__->meta->make_immutable;
 
 1;
 __END__
