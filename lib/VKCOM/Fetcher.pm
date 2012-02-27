@@ -5,6 +5,7 @@ use 5.012003;
 our $VERSION = '0.01';
 
 use Any::Moose;
+use HTTP::Tiny;
 
 with 'VKCOM::Fetcher::Service::Audio' => {
     -excludes => ['http_method_name', 'file_extension'] 
