@@ -15,7 +15,7 @@ use base qw(Exporter);
 our @EXPORT = qw(
     read_dir
     write_file
-    decode_json
+    json_decode
     compare_list
     html_decode
 );
@@ -85,10 +85,10 @@ sub compare_list {
 
     my $lc = List::Compare->new( $list_1, $list_2 );
 
-    my @result = $lc->can($how) ? $lc->$how :
+    my @result = $lc->can($how) ? ( $lc->$how ) :
         croak "incorrect compare method: $how";
     
-    return \@result;
+    return wantarray ? @result : [ @result ];
 }
 
 sub html_decode { 

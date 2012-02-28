@@ -8,14 +8,14 @@ use Carp;
 sub http_method_name { 'audio.get' }
 sub file_extension   { 'mp3' }
 
-sub audio {
+sub fetchAudio {
     my $self = shift;
     my (%opts) = @_;
     my $storage = $opts{'storage'} or
         croak('storage not specified');
 
-    my $method_name = $self->http_method_name();
-    my $ext    = $self->file_extension();
+    my $method_name = http_method_name();
+    my $ext    = file_extension();
     
     my ( $dh, $storage_songs ) = read_dir( $storage, $ext );
 
@@ -36,8 +36,8 @@ sub audio {
 
     if ( keys( %$vk_songs ) ) {
         my @new_songs = $opts{'rewrite'} ? ( keys( %$vk_songs ) ) : 
-            compare_list( 'symdiff', [ keys %$vk_songs ], $storage_songs );
-           
+            ( compare_list( 'get_symdiff', [ keys %$vk_songs ], $storage_songs ) );
+               
         for my $song_name ( @new_songs ) {
             my $url = $vk_songs->{$song_name};
             write_file(

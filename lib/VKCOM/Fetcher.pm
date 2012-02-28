@@ -6,6 +6,7 @@ our $VERSION = '0.01';
 
 use Any::Moose;
 use HTTP::Tiny;
+use Carp;
 
 with 'VKCOM::Fetcher::Service::Audio' => {
     -excludes => ['http_method_name', 'file_extension'] 
@@ -81,7 +82,19 @@ sub fetch {
         sprintf( "%s%s?%s", $self->base_url, $url, $self->get_auth_params() ) :
             $url;
 
-    return $self->ua->get( $req_url );
+    my $result = $self->ua->get($req_url);
+
+    if ( defined ( my $success = $result->{'success'} ) ) {
+        my $reason = $result->{'reason'} || '';
+        $success or croak("Failed to fetch '$url': $reason");
+    } else {
+        croak('Missing success in return value');
+    }
+
+    defined ( my $content = $result->{'content'} )
+        or croak('Missing content in return value');
+
+    return $content;
 }
 
 sub get_auth_params {
