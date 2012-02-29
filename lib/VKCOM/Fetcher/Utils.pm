@@ -5,6 +5,7 @@ use warnings;
 
 use Carp;
 use JSON;
+use File::Spec;
 use Try::Tiny;
 use List::Compare;
 use HTML::Entities;
@@ -13,6 +14,7 @@ use Fcntl qw( :DEFAULT );
 use base qw(Exporter);
 
 our @EXPORT = qw(
+    do_canonpath
     read_dir
     write_file
     json_decode
@@ -20,7 +22,19 @@ our @EXPORT = qw(
     html_decode
 );
 
+### < FILESYSTEM FUNCTIONS > ###
+#################################
+
 sub STORE_FLAGS { O_WRONLY | O_CREAT | O_BINARY }
+
+sub do_canonpath {
+    my $path = shift;
+
+    defined $path or
+        croak('path not specified');
+    
+    return File::Spec->canonpath( $path ) ;
+}
 
 sub read_dir {
     my ( $dir, $ext ) = @_;
@@ -28,13 +42,15 @@ sub read_dir {
     croak("directory $dir is not existed") 
         unless ( -d $dir );
 
-    my $check_ext = $ext ? sub { 1 } : sub { 
+    my $check_ext = $ext ? 
+    sub { 
         my $file = shift;
         $_ = $ext;
         return /\Q$file\E$/;
-    };
+    } : 
+    sub { 1 };
 
-    opendir(my $dh, $dir) || croak "can't opendir $dir: $!";
+    opendir(my $dh, $dir) || croak("can't opendir $dir: $!");
     my @files = ( 
         grep { !/^\./ && -f "$dir/$_" && &$check_ext($_) } 
         readdir($dh) 
@@ -44,20 +60,25 @@ sub read_dir {
 }
 
 sub write_file {
-    my ( $file, $data, $file_create_mode ) = @_;
+    my ( $storage, $file, $data, $file_create_mode ) = @_;
     $file_create_mode = oct(666) if !defined($file_create_mode);
+
+    my ( $volume, $path ) = File::Spec->splitpath( $storage, 1 );
+    my $full_path = File::Spec->catpath( $volume, $path, $file );
     
     my $fh;
-    unless ( sysopen( $fh, $file, STORE_FLAGS(), $file_create_mode ) )
+    unless ( sysopen( $fh, $full_path, STORE_FLAGS(), $file_create_mode ) )
     {
-        croak "write_file '$file' - sysopen: $!";
+        croak("write_file '$full_path' - sysopen: $!");
     }
+
     my $size_left = length($data);
     my $offset    = 0;
+    
     do {
         my $write_cnt = syswrite( $fh, $data, $size_left, $offset );
         unless ( defined $write_cnt ) {
-            croak "write_file '$file' - syswrite: $!";
+            croak("write_file '$full_path' - syswrite: $!");
         }
         $size_left -= $write_cnt;
         $offset += $write_cnt;
@@ -66,13 +87,16 @@ sub write_file {
     return 1;
 }
 
+#################################
+#################################
+
 sub json_decode {
     my ( $json ) = @_;
     
     my $decoded_result;
     
     try   { $decoded_result = JSON::decode_json($json) }
-    catch { croak "Couldn't decode '$json': $_" };
+    catch { croak("Couldn't decode '$json': $_") };
     
     return $decoded_result;
 }
@@ -84,9 +108,8 @@ sub compare_list {
         croak 'compare method not specified';
 
     my $lc = List::Compare->new( $list_1, $list_2 );
-
     my @result = $lc->can($how) ? ( $lc->$how ) :
-        croak "incorrect compare method: $how";
+        croak("incorrect compare method: $how");
     
     return wantarray ? @result : [ @result ];
 }

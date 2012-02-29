@@ -14,8 +14,10 @@ sub fetchAudio {
     my $storage = $opts{'storage'} or
         croak('storage not specified');
 
+    $storage = do_canonpath($storage);
+
     my $method_name = http_method_name();
-    my $ext    = file_extension();
+    my $ext = file_extension();
     
     my ( $dh, $storage_songs ) = read_dir( $storage, $ext );
 
@@ -40,9 +42,12 @@ sub fetchAudio {
                
         for my $song_name ( @new_songs ) {
             my $url = $vk_songs->{$song_name};
+            my $binary_data = $self->fetch( 0, $url );
+
             write_file(
-                "$storage/$song_name", 
-                $self->fetch( 0, $url )
+                $storage,
+                $song_name, 
+                $binary_data
             )
             or carp("can't write file: $storage/$song_name");
         }

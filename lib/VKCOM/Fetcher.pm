@@ -88,11 +88,11 @@ sub fetch {
         my $reason = $result->{'reason'} || '';
         $success or croak("Failed to fetch '$url': $reason");
     } else {
-        croak('Missing success in return value');
+        croak('missing success in return value');
     }
 
     defined ( my $content = $result->{'content'} )
-        or croak('Missing content in return value');
+        or croak('missing content in return value');
 
     return $content;
 }
