@@ -100,56 +100,57 @@ sub fetch {
 sub get_auth_params {
     my $self = shift;
 
-    my @attrs = ( 'access_token', ( $self->gid ? 'gid' : 'uid' ) );
+    my @attrs = ( 'access_token', ( $self->has_gid ? 'gid' : 'uid' ) );
     my @params = map { sprintf( '%s=%s', $_, $self->$_ ) } @attrs;
     return join('&', @params);
 }
 
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-VKCOM::Fetcher - Perl extension for blah blah blah
+VKCOM::Fetcher - Perl extension for fetching content from vk.com
 
 =head1 SYNOPSIS
 
-  use VKCOM::Fetcher;
-  blah blah blah
+use VKCOM::Fetcher;
+
+my $vkfetcher = VKCOM::Fetcher->new( 
+    access_token => 'myAccessTokenString', 
+    uid => 1234567
+);
+
+$vkfetcher->fetchAudio(
+    storage => '/home/user/music'
+);
 
 =head1 DESCRIPTION
 
-Stub documentation for VKCOM::Fetcher, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+This module for only personal usage! 
 
-Blah blah blah.
+You can fetch only the audio but in future we plan to add another services.
+First you need register Standalone/Mobile application. Authorization works based on this article http://vk.com/developers.php?oid=-1&p=%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F_%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%D1%81%D0%BA%D0%B8%D1%85_%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B9
+
+For getting the access token you need do a request for example:
+http://oauth.vkontakte.ru/authorize?client_id=1111111&scope=audio&redirect_uri=http://oauth.vkontakte.ru/blank.html&display=page&response_type=token
+where client_id = application id
 
 =head2 EXPORT
 
-None by default.
-
-
+None. 
 
 =head1 SEE ALSO
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
+http://vk.com/developers.php
 
 =head1 AUTHOR
 
-Али Рамазанов, E<lt>aramazanov@apple.comE<gt>
+Ali Ramazanov, E<lt>netspamer@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2012 by Али Рамазанов
+Copyright (C) 2012 by Ali Ramazanov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.12.3 or,

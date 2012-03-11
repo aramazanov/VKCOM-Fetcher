@@ -1,12 +1,25 @@
 use 5.012003;
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
 WriteMakefile(
+    ABSTRACT_FROM     => 'lib/VKCOM/Fetcher.pm',
+    AUTHOR            => 'Ali Ramazanov <netspamer@gmail.com>',
     NAME              => 'VKCOM::Fetcher',
-    VERSION_FROM      => 'lib/VKCOM/Fetcher.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
-    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/VKCOM/Fetcher.pm', # retrieve abstract from module
-       AUTHOR         => 'Али Рамазанов <aramazanov@apple.com>') : ()),
+    DISTNAME          => 'VKCOM-Fetcher',
+    VERSION_FROM      => 'lib/VKCOM/Fetcher.pm',
+    EXE_FILES         => [],
+    LICENSE           => 'perl',
+    PREREQ_PM         => {
+        'Any::Moose'     => 0,
+        'Carp'           => 0,
+        'HTTP::Tiny'     => 0,
+        'Try::Tiny'      => 0,
+        'JSON'           => 0,
+        'File::Spec'     => 0,
+        'List::Compare'  => 0,
+        'HTML::Entities' => 0,
+        'Fcntl'          => 0, 
+        'strict'         => 0,
+        'warnings'       => 0
+    },
 );

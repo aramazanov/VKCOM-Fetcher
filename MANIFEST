@@ -4,3 +4,5 @@ MANIFEST
 README
 t/VKCOM-Fetcher.t
 lib/VKCOM/Fetcher.pm
+lib/VKCOM/Fetcher/Utils.pm
+lib/VKCOM/Fetcher/Service/Audio.pm
