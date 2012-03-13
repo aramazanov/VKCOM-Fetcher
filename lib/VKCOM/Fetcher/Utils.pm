@@ -10,6 +10,8 @@ use Try::Tiny;
 use List::Compare;
 use HTML::Entities;
 use Fcntl qw( :DEFAULT ); 
+use Encode;
+use Unicode::Normalize; 
 
 use base qw(Exporter);
 
@@ -20,6 +22,7 @@ our @EXPORT = qw(
     json_decode
     compare_list
     html_decode
+    transform_string
 );
 
 ### < FILESYSTEM FUNCTIONS > ###
@@ -45,18 +48,18 @@ sub read_dir {
     my $check_ext = $ext ? 
     sub { 
         my $file = shift;
-        $_ = $ext;
-        return /\Q$file\E$/;
+        $_ = $file;
+        return /\Q$ext\E$/;
     } : 
     sub { 1 };
 
     opendir(my $dh, $dir) || croak("can't opendir $dir: $!");
-    my @files = ( 
+    my @files = (
         grep { !/^\./ && -f "$dir/$_" && &$check_ext($_) } 
         readdir($dh) 
     );
 
-    return $dh, \@files;
+    return \@files;
 }
 
 sub write_file {
@@ -116,6 +119,26 @@ sub compare_list {
 
 sub html_decode { 
     return HTML::Entities::decode_entities(shift); 
+}
+
+sub transform_string {
+    my $string = shift;
+ 
+    if ( Encode::is_utf8($string) && $string =~ /[^\x00-\xFF]/ ) {
+        $string = Encode::encode( 'utf8', normalize_string( $string )  );
+    }
+ 
+    return $string;
+}
+
+sub normalize_string {
+    my $string = shift;
+    
+    if ($string) {
+        $string = Unicode::Normalize::NFD($string);
+    }
+
+    return $string;
 }
 
 1;

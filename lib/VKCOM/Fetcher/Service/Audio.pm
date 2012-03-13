@@ -18,8 +18,6 @@ sub fetchAudio {
 
     my $method_name = http_method_name();
     my $ext = file_extension();
-    
-    my ( $dh, $storage_songs ) = read_dir( $storage, $ext );
 
     my $struct = json_decode( 
         $self->fetch( 1, "method/$method_name" ) 
@@ -29,17 +27,19 @@ sub fetchAudio {
     for my $song ( @{$struct->{response}} ) {
         my $song_name = sprintf(
                 '%s - %s.%s', 
-                html_decode( $song->{artist} ), 
-                html_decode( $song->{title}  ), 
+                $song->{artist}, 
+                $song->{title}, 
                 $ext 
         );
+        $song_name = html_decode( transform_string( $song_name ) ); 
         $vk_songs->{$song_name} = $song->{url};
     }
 
     if ( keys( %$vk_songs ) ) {
-        my @new_songs = $opts{'rewrite'} ? ( keys( %$vk_songs ) ) : 
-            ( compare_list( 'get_symdiff', [ keys %$vk_songs ], $storage_songs ) );
-               
+        my @new_songs = $opts{'rewrite'} ?
+            ( keys( %$vk_songs ) ) : 
+            ( compare_list( 'get_symdiff', [ keys %$vk_songs ], read_dir( $storage, $ext ) ) );
+
         for my $song_name ( @new_songs ) {
             my $url = $vk_songs->{$song_name};
             my $binary_data = $self->fetch( 0, $url );
