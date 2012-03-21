@@ -101,6 +101,7 @@ sub get_auth_params {
 
     my @attrs = ( 'access_token', ( $self->has_gid ? 'gid' : 'uid' ) );
     my @params = map { sprintf( '%s=%s', $_, $self->$_ ) } @attrs;
+
     return join('&', @params);
 }
 
@@ -114,6 +115,8 @@ sub check_vk_api_response {
     if ( exists($struct->{error}) ) {
         croak("found error in request:\n". Data::Dumper::Dumper($struct));
     }
+
+    return 1;
 }
 
 1;
