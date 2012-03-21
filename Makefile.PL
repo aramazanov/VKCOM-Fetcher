@@ -20,7 +20,9 @@ WriteMakefile(
         'HTML::Entities'     => 0,
         'Fcntl'              => 0,
         'Encode'             => 0,
-        'Unicode::Normalize' => 0, 
+        'Unicode::Normalize' => 0,
+        'Readonly'           => 0,
+        'Data::Dumper'       => 0, 
         'strict'             => 0,
         'warnings'           => 0
     },

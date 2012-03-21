@@ -6,11 +6,10 @@ our $VERSION = '0.01';
 
 use Any::Moose;
 use HTTP::Tiny;
+use Data::Dumper;
 use Carp;
 
-with 'VKCOM::Fetcher::Service::Audio' => {
-    -excludes => ['http_method_name', 'file_extension'] 
-    };
+with 'VKCOM::Fetcher::Service::Audio';
 
 has 'access_token' => ( 
     is       => 'rw', 
@@ -103,6 +102,18 @@ sub get_auth_params {
     my @attrs = ( 'access_token', ( $self->has_gid ? 'gid' : 'uid' ) );
     my @params = map { sprintf( '%s=%s', $_, $self->$_ ) } @attrs;
     return join('&', @params);
+}
+
+sub check_vk_api_response {
+    my $self = shift;
+    my $struct = shift;
+
+    ref $struct eq 'HASH' or 
+        croak('struct must be hash ref');
+
+    if ( exists($struct->{error}) ) {
+        croak("found error in request:\n". Data::Dumper::Dumper($struct));
+    }
 }
 
 1;

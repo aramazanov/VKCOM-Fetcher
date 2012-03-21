@@ -63,11 +63,13 @@ sub read_dir {
 }
 
 sub write_file {
-    my ( $storage, $file, $data, $file_create_mode ) = @_;
+    my ( $storage, $file, $data, $debug, $file_create_mode ) = @_;
     $file_create_mode = oct(666) if !defined($file_create_mode);
 
     my ( $volume, $path ) = File::Spec->splitpath( $storage, 1 );
     my $full_path = File::Spec->catpath( $volume, $path, $file );
+
+    print "$full_path ... " if $debug;
     
     my $fh;
     unless ( sysopen( $fh, $full_path, STORE_FLAGS(), $file_create_mode ) )
@@ -86,6 +88,8 @@ sub write_file {
         $size_left -= $write_cnt;
         $offset += $write_cnt;
     } while ( $size_left > 0 );
+
+    print "OK\n" if $debug;
 
     return 1;
 }
