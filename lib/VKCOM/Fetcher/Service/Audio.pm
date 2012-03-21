@@ -43,7 +43,7 @@ sub fetchAudio {
             ( compare_list( 'get_symdiff', [ keys %$vk_audio ], read_dir( $storage, $FILE_EXTENSION ) ) );
 
         my $count_new_audio = scalar(@new_audio);
-        print $count_new_audio . " audio have been found" .
+        print $count_new_audio . " audio found" .
             ( $rewrite ? " with flag 'rewrite'" : " without flag 'rewrite'" ) . 
                 ( $count_new_audio ? ", trying to write:\n" : "\n" ) if $debug;
 
@@ -56,7 +56,7 @@ sub fetchAudio {
                 $audio_name, 
                 $binary_data,
                 $debug
-            )
+            );
         }
     } elsif ( $debug ) {
         print "no audio in your playlist\n";
