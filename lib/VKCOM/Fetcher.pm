@@ -1,6 +1,6 @@
 package VKCOM::Fetcher;
 
-use 5.012003;
+use 5.00800;
 
 our $VERSION = '0.01';
 
@@ -37,13 +37,13 @@ has 'base_url' => (
     default => 'https://api.vk.com/'
 );
 
-has ua => (
+has 'ua' => (
     is         => 'ro',
     isa        => 'HTTP::Tiny',
     lazy_build => 1,
 );
 
-has ua_args => (
+has 'ua_args' => (
     is      => 'ro',
     isa     => 'ArrayRef',
     default => sub {
