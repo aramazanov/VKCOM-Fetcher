@@ -38,10 +38,19 @@ sub fetchAudio {
     }
 
     if ( keys( %$vk_audio ) ) {
-        my @new_audio = $opts{'rewrite'} ?
+        my @new_audio = $rewrite ?
             ( keys( %$vk_audio ) ) : 
             ( compare_list( 'get_symdiff', [ keys %$vk_audio ], read_dir( $storage, $FILE_EXTENSION ) ) );
 
+        # files was removed from your playlist in vk.com
+        my @audio_removed_from_vk;
+        for (0 .. $#new_audio) 
+        {
+            my $audio_name = $new_audio[$_];
+            push @audio_removed_from_vk, delete $new_audio[$_] if !exists($vk_audio->{$audio_name});
+        }
+
+        @new_audio = grep { defined $_ } @new_audio;
         my $count_new_audio = scalar(@new_audio);
         print $count_new_audio . " audio found" .
             ( $rewrite ? " with flag 'rewrite'" : " without flag 'rewrite'" ) . 
