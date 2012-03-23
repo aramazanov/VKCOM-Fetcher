@@ -20,7 +20,6 @@ our @EXPORT = qw(
     read_dir
     write_file
     json_decode
-    compare_list
     html_decode
     transform_string
 );
@@ -106,19 +105,6 @@ sub json_decode {
     catch { croak("Couldn't decode '$json': $_") };
     
     return $decoded_result;
-}
-
-sub compare_list {
-    my ( $how, $list_1, $list_2 ) = @_;
-
-    defined $how or 
-        croak 'compare method not specified';
-
-    my $lc = List::Compare->new( $list_1, $list_2 );
-    my @result = $lc->can($how) ? ( $lc->$how ) :
-        croak("incorrect compare method: $how");
-    
-    return wantarray ? @result : [ @result ];
 }
 
 sub html_decode { 

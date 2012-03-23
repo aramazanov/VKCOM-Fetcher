@@ -16,7 +16,6 @@ WriteMakefile(
         'Try::Tiny'          => 0,
         'JSON'               => 0,
         'File::Spec'         => 0,
-        'List::Compare'      => 0,
         'HTML::Entities'     => 0,
         'Fcntl'              => 0,
         'Encode'             => 0,
