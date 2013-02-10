@@ -33,6 +33,7 @@ sub fetchAudio {
                 $FILE_EXTENSION 
         );
         $audio_name = html_decode( transform_string( $audio_name ) ); 
+        $audio_name =~ s/(\/|\\)/ /g; # temp simple solution for cross-platform
         $vk_audio->{$audio_name} = $audio->{'url'};
     }
 
